@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CET College Predictor 2024</title>
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- Babel for JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --accent-color: #8b5cf6;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Auth Container Styles */
+        .auth-container {
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            position: relative;
+        }
+
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: var(--primary-color);
+            filter: blur(150px);
+            opacity: 0.15;
+            top: 10%;
+            right: 10%;
+        }
+
+        .auth-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            z-index: 10;
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-header h2 {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 0;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .auth-header p {
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            font-size: 0.9375rem;
+        }
+
+        .btn-auth {
+            width: 100%;
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 1rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-auth:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .auth-footer span {
+            color: var(--primary-color);
+            font-weight: 600;
+            cursor: pointer;
+            margin-left: 0.5rem;
+        }
+
+        .auth-footer span:hover { text-decoration: underline; }
+
+        /* Form Group Styles */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        input, select {
+            width: 100%;
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            border-radius: 10px;
+            padding: 0.875rem;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background-color: rgba(15, 23, 42, 0.8);
+        }
+
+        /* Predictor Styles */
+        .app-container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 2rem;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .user-badge {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.625rem 1.25rem;
+            border-radius: 9999px;
+            border: 1px solid var(--border-color);
+            font-size: 0.875rem;
+        }
+
+        .btn-logout {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 0.625rem 1.25rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            border-color: #ef4444;
+            color: #ef4444;
+            background: rgba(239, 68, 68, 0.05);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #60a5fa, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+        }
+        
+        .sidebar {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            height: fit-content;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-predict {
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .results-area {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .metric-card {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .metric-value {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 0.5rem 0;
+        }
+        
+        .metric-card.stretch .metric-value { color: var(--warning-color); }
+        .metric-card.safe .metric-value { color: var(--success-color); }
+
+        .results-table-container {
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 1rem 1.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            text-align: left;
+        }
+
+        td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .margin-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 9999px;
+            font-weight: 700;
+            font-size: 0.75rem;
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #34d399;
+        }
+
+        .empty-state {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // API Endpoints (relative paths as they are served by the same FastAPI app)
+        const LOGIN_ENDPOINT = '/api/login';
+        const REGISTER_ENDPOINT = '/api/register';
+
+        function AuthPage({ onLogin }) {
+            const [isSignUp, setIsSignUp] = useState(true);
+            const [loading, setLoading] = useState(false);
+            const [formData, setFormData] = useState({ username: '', name: '', email: '', phone: '', password: '' });
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                
+                const endpoint = isSignUp ? REGISTER_ENDPOINT : LOGIN_ENDPOINT;
+                try {
+                    const res = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+                    const data = await res.json();
+                    
+                    if (data.success) {
+                        onLogin(data);
+                    } else {
+                        alert(data.message || 'Authentication failed');
+                    }
+                } catch (err) {
+                    alert('Error: Could not connect to the server.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="auth-container">
+                    <div className="auth-card">
+                        <div className="auth-header">
+                            <h2>{isSignUp ? 'Create Account' : 'Welcome Back'}</h2>
+                            <p>{isSignUp ? 'Sign up to access the predictor' : 'Login to your account'}</p>
+                        </div>
+                        <form onSubmit={handleSubmit}>
+                            {isSignUp && (
+                                <>
+                                    <div className="form-group">
+                                        <label>Full Name</label>
+                                        <input 
+                                            type="text" 
+                                            placeholder="John Doe"
+                                            required 
+                                            value={formData.name}
+                                            onChange={e => setFormData({...formData, name: e.target.value})}
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Username</label>
+                                        <input 
+                                            type="text" 
+                                            placeholder="johndoe123"
+                                            required 
+                                            value={formData.username}
+                                            onChange={e => setFormData({...formData, username: e.target.value})}
+                                        />
+                                    </div>
+                                </>
+                            )}
+                            
+                            <div className="form-group">
+                                <label>Email Address</label>
+                                <input 
+                                    type="email" 
+                                    placeholder="john@example.com"
+                                    required 
+                                    value={formData.email}
+                                    onChange={e => setFormData({...formData, email: e.target.value})}
+                                />
+                            </div>
+
+                            {isSignUp && (
+                                <div className="form-group">
+                                    <label>Phone Number</label>
+                                    <input 
+                                        type="tel" 
+                                        placeholder="+91 98765 43210"
+                                        required 
+                                        value={formData.phone}
+                                        onChange={e => setFormData({...formData, phone: e.target.value})}
+                                    />
+                                </div>
+                            )}
+                            
+                            <div className="form-group">
+                                <label>Password</label>
+                                <input 
+                                    type="password" 
+                                    placeholder="••••••••"
+                                    required 
+                                    value={formData.password}
+                                    onChange={e => setFormData({...formData, password: e.target.value})}
+                                />
+                            </div>
+                            
+                            <button type="submit" className="btn-auth" disabled={loading}>
+                                {loading ? 'Processing...' : (isSignUp ? 'Sign Up' : 'Login')}
+                            </button>
+                        </form>
+                        
+                        <div className="auth-footer">
+                            {isSignUp ? 'Already have an account?' : "Don't have an account?"}
+                            <span onClick={() => setIsSignUp(!isSignUp)}>
+                                {isSignUp ? 'Login' : 'Sign Up'}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function Predictor({ user, onLogout }) {
+            const [filters, setFilters] = useState({ categories: [], cities: [], courses: [] });
+            const [profile, setProfile] = useState({ percentile: 95.0, hsc: 60.0, category: 'GOPENS', city: 'All Cities', course: 'All Courses' });
+            const [results, setResults] = useState(null);
+            const [loading, setLoading] = useState(false);
+
+            useEffect(() => {
+                fetch('/api/filters')
+                    .then(res => res.json())
+                    .then(data => {
+                        setFilters(data);
+                        if (data.categories?.length) setProfile(p => ({ ...p, category: data.categories[0] }));
+                    });
+            }, []);
+
+            const handlePredict = async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                try {
+                    const res = await fetch('/api/predict', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            percentile: parseFloat(profile.percentile),
+                            hsc_marks: parseFloat(profile.hsc),
+                            category: profile.category,
+                            city_filter: profile.city,
+                            course_filter: profile.course
+                        })
+                    });
+                    const data = await res.json();
+                    setResults(data);
+                } catch (err) {
+                    console.error(err);
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            return (
+                <div className="app-container">
+                    <header>
+                        <h1>CET Predictor 2024</h1>
+                        <div className="user-info">
+                            <div className="user-badge">
+                                Welcome, <strong>{user.name}</strong>
+                            </div>
+                            <button className="btn-logout" onClick={onLogout}>Logout</button>
+                        </div>
+                    </header>
+
+                    <aside className="sidebar">
+                        <form onSubmit={handlePredict}>
+                            <div className="form-group">
+                                <label>Your CET Percentile</label>
+                                <input type="number" step="0.0001" value={profile.percentile} 
+                                    onChange={e => setProfile({...profile, percentile: e.target.value})} />
+                            </div>
+                            <div className="form-group">
+                                <label>Your HSC Marks (%)</label>
+                                <input type="number" step="0.1" value={profile.hsc} 
+                                    onChange={e => setProfile({...profile, hsc: e.target.value})} />
+                            </div>
+                            <div className="form-group">
+                                <label>Your Category</label>
+                                <select value={profile.category} onChange={e => setProfile({...profile, category: e.target.value})}>
+                                    {filters.categories.map(c => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Filter by City</label>
+                                <select value={profile.city} onChange={e => setProfile({...profile, city: e.target.value})}>
+                                    <option>All Cities</option>
+                                    {filters.cities.map(c => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                            </div>
+                            <div className="form-group">
+                                <label>Filter by Course</label>
+                                <select value={profile.course} onChange={e => setProfile({...profile, course: e.target.value})}>
+                                    <option>All Courses</option>
+                                    {filters.courses.map(c => <option key={c} value={c}>{c}</option>)}
+                                </select>
+                            </div>
+                            <button type="submit" className="btn-predict" disabled={loading}>
+                                {loading ? 'PREDICTING...' : 'Predict My Colleges'}
+                            </button>
+                        </form>
+                    </aside>
+
+                    <main className="results-area">
+                        {loading ? (
+                            <div className="empty-state">Analyzing 2024 cutoff data...</div>
+                        ) : results ? (
+                            <>
+                                <div className="metrics">
+                                    <div className="metric-card stretch">
+                                        <div className="metric-label">Stretch Picks</div>
+                                        <div className="metric-value">{results.stretch_picks}</div>
+                                    </div>
+                                    <div className="metric-card safe">
+                                        <div className="metric-label">Safe Picks</div>
+                                        <div className="metric-value">{results.safe_picks}</div>
+                                    </div>
+                                </div>
+
+                                {results.summary && (
+                                    <div style={{
+                                        padding: '1rem', 
+                                        background: 'rgba(59, 130, 246, 0.1)', 
+                                        borderRadius: '12px', 
+                                        border: '1px solid var(--primary-color)',
+                                        marginBottom: '1rem',
+                                        fontSize: '0.9rem'
+                                    }}>
+                                        {results.summary}
+                                    </div>
+                                )}
+
+                                <div className="results-table-container">
+                                    {results.results.length > 0 ? (
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>College</th>
+                                                    <th>Course</th>
+                                                    <th>City</th>
+                                                    <th>Cutoff %ile</th>
+                                                    <th>Margin</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {results.results.map((r, i) => (
+                                                    <tr key={i}>
+                                                        <td style={{fontWeight: 600, color: 'white'}}>{r.college_name}</td>
+                                                        <td>{r.course_name}</td>
+                                                        <td>{r.city_name}</td>
+                                                        <td>{r.cutoff.toFixed(2)}%</td>
+                                                        <td>
+                                                            <span className="margin-badge">
+                                                                +{r.margin.toFixed(2)}%
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    ) : (
+                                        <div className="empty-state">No colleges found matching your criteria.</div>
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            <div className="empty-state">Enter details & click Predict</div>
+                        )}
+                    </main>
+                </div>
+            );
+        }
+
+        function App() {
+            const [user, setUser] = useState(null);
+
+            const handleLogin = (userData) => {
+                setUser(userData);
+                localStorage.setItem('cet_user', JSON.stringify(userData));
+            };
+
+            const handleLogout = () => {
+                setUser(null);
+                localStorage.removeItem('cet_user');
+            };
+
+            useEffect(() => {
+                const savedUser = localStorage.getItem('cet_user');
+                if (savedUser) setUser(JSON.parse(savedUser));
+            }, []);
+
+            return user ? <Predictor user={user} onLogout={handleLogout} /> : <AuthPage onLogin={handleLogin} />;
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+mysql-connector-python
+bcrypt
+pandas
+transformers
+torch
+python-dotenv
+pydantic
+scikit-learn
+joblib
+streamlit
+requests
