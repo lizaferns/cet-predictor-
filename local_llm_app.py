@@ -43,10 +43,10 @@ app.add_middleware(
 )
 
 # ── MySQL Connection ───────────────────────────────────────────────────────────
-MYSQL_HOST = os.getenv("MYSQLHOST", "localhost")
+MYSQL_HOST = os.getenv("MYSQLHOST", "mysql.railway.internal")
 MYSQL_PORT = int(os.getenv("MYSQLPORT", 3306))
 MYSQL_USER = os.getenv("MYSQLUSER", "root")
-MYSQL_PASSWORD = os.getenv("MYSQLPASSWORD", "WILL@_1981")
+MYSQL_PASSWORD = os.getenv("MYSQLPASSWORD", "VaLIaMpwaJescUNEcyBlCuInrFbovJPI")
 MYSQL_DATABASE = os.getenv("MYSQLDATABASE", "cet_predictor")
 
 print(f"[DB] Connecting to {MYSQL_HOST}:{MYSQL_PORT} as {MYSQL_USER}")
