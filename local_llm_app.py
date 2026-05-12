@@ -31,13 +31,19 @@ app = FastAPI(title="MHT-CET College Predictor API", version="2.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "https://starlit-cactus-bdb990.netlify.app",
+        "http://localhost:3000",
+        "http://localhost:5173",
+        "*"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # ── MySQL Connection ───────────────────────────────────────────────────────────
+import os
 DB_CONFIG = {
     "host": os.getenv("MYSQLHOST", "localhost"),
     "user": os.getenv("MYSQLUSER", "root"),
