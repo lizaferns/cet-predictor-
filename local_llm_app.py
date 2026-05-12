@@ -35,7 +35,6 @@ app.add_middleware(
         "https://starlit-cactus-bdb990.netlify.app",
         "http://localhost:3000",
         "http://localhost:5173",
-        "*"
     ],
     allow_credentials=True,
     allow_methods=["*"],
