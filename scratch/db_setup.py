@@ -3,8 +3,8 @@ from mysql.connector import Error
 
 DB_NAME = "cet_predictor"
 USER = "root"
-PASSWORD = "WILL@_1981"  # replace with your actual MySQL password
-HOST = "localhost"
+PASSWORD = "VaLIaMpwaJescUNEcyBlCuInrFbovJPI"  # replace with your actual MySQL password
+HOST = "mysql.railway.internal"
 
 def setup_db():
     try:
