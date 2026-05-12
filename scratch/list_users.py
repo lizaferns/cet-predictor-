@@ -1,7 +1,7 @@
 import mysql.connector
 
 DB_CONFIG = {
-    "host": "localhost",
+    "host": "mysql.railway.internal",
     "user": "root",
     "password": "VaLIaMpwaJescUNEcyBlCuInrFbovJPI",
     "database": "cet_predictor"
