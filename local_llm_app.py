@@ -39,11 +39,11 @@ app.add_middleware(
 
 # ── MySQL Connection ───────────────────────────────────────────────────────────
 DB_CONFIG = {
-    "host": "localhost",
-    "user": "root",
-    "password": "WILL@_1981",  # ← CHANGE THIS to your MySQL root password
-    "database": "cet_predictor",
-    "port": 3306 
+    "host": os.getenv("MYSQLHOST", "localhost"),
+    "user": os.getenv("MYSQLUSER", "root"),
+    "password": os.getenv("MYSQLPASSWORD", "WILL@_1981"),
+    "database": os.getenv("MYSQLDATABASE", "cet_predictor"),
+    "port": int(os.getenv("MYSQLPORT", 3306))
 }
 
 # GMAIL CONFIG (From .env)
