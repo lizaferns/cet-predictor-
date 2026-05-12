@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  GraduationCap, 
-  Lock, 
-  User, 
-  Mail, 
-  Phone, 
-  Search, 
-  LogOut, 
-  CheckCircle2, 
+import {
+  GraduationCap,
+  Lock,
+  User,
+  Mail,
+  Phone,
+  Search,
+  LogOut,
+  CheckCircle2,
   AlertCircle,
   ChevronRight,
   TrendingUp,
@@ -19,7 +19,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 
 // API Configuration
-const API_BASE = '/api';
+const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -62,9 +62,9 @@ function App() {
     setError('');
     try {
       const { email, password } = e.target.elements;
-      const res = await axios.post(`${API_BASE}/login`, { 
-        email: email.value, 
-        password: password.value 
+      const res = await axios.post(`${API_BASE}/login`, {
+        email: email.value,
+        password: password.value
       });
       if (res.data.success) {
         setUser({ name: res.data.name, email: res.data.email });
@@ -85,14 +85,14 @@ function App() {
     setError('');
     try {
       const { name, email, phone, password, confirm } = e.target.elements;
-      
+
       // Phone validation
       const phoneVal = phone.value;
       if (phoneVal.length !== 10) return setError("Phone number must be exactly 10 digits");
       if (!/^[6-9]/.test(phoneVal)) return setError("Phone number must start with 6, 7, 8 or 9");
 
       if (password.value !== confirm.value) return setError("Passwords do not match");
-      
+
       const res = await axios.post(`${API_BASE}/register`, {
         name: name.value,
         username: name.value,
@@ -197,7 +197,7 @@ function App() {
   if (!user) {
     return (
       <div className="app-container" style={{ justifyContent: 'center', background: 'linear-gradient(to bottom right, #f8fafc, #e2e8f0)' }}>
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="auth-card"
@@ -212,7 +212,7 @@ function App() {
 
           <AnimatePresence mode="wait">
             {authView === 'login' && (
-              <motion.form 
+              <motion.form
                 key="login"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -245,7 +245,7 @@ function App() {
             )}
 
             {authView === 'register' && (
-              <motion.form 
+              <motion.form
                 key="register"
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
@@ -270,13 +270,13 @@ function App() {
                   <label className="label">Phone Number</label>
                   <div style={{ position: 'relative' }}>
                     <Phone size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                    <input 
-                      name="phone" 
-                      type="tel" 
-                      className="input" 
-                      style={{ paddingLeft: '3rem' }} 
-                      placeholder="10-digit number" 
-                      required 
+                    <input
+                      name="phone"
+                      type="tel"
+                      className="input"
+                      style={{ paddingLeft: '3rem' }}
+                      placeholder="10-digit number"
+                      required
                       onInput={(e) => {
                         e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
                       }}
@@ -298,7 +298,7 @@ function App() {
                   {loading ? 'Creating Account...' : 'Register'}
                 </button>
                 <div style={{ textAlign: 'center', fontSize: '0.875rem' }}>
-                   <div style={{ color: 'var(--text-muted)' }}>Already have an account? <button type="button" onClick={() => setAuthView('login')} style={{ background: 'none', border: 'none', color: 'var(--secondary)', fontWeight: '600', cursor: 'pointer' }}>Login</button></div>
+                  <div style={{ color: 'var(--text-muted)' }}>Already have an account? <button type="button" onClick={() => setAuthView('login')} style={{ background: 'none', border: 'none', color: 'var(--secondary)', fontWeight: '600', cursor: 'pointer' }}>Login</button></div>
                 </div>
               </motion.form>
             )}
@@ -383,32 +383,32 @@ function App() {
 
       <main style={{ flex: 1, padding: '2rem', maxWidth: '1400px', margin: '0 auto', width: '100%' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '350px 1fr', gap: '2rem' }}>
-          
+
           {/* Sidebar - Inputs */}
           <aside>
             <div style={{ background: 'white', padding: '2rem', borderRadius: '20px', boxShadow: 'var(--shadow)', position: 'sticky', top: '100px' }}>
               <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Zap size={20} style={{ color: 'var(--accent)' }} /> 
+                <Zap size={20} style={{ color: 'var(--accent)' }} />
                 Input Score
               </h3>
-              
+
               <div className="input-group">
                 <label className="label">Your CET Percentile</label>
-                <input 
-                  type="number" 
-                  step="0.01" 
-                  className="input" 
+                <input
+                  type="number"
+                  step="0.01"
+                  className="input"
                   value={input.percentile}
-                  onChange={(e) => setInput({...input, percentile: parseFloat(e.target.value)})}
+                  onChange={(e) => setInput({ ...input, percentile: parseFloat(e.target.value) })}
                 />
               </div>
 
               <div className="input-group">
                 <label className="label">Category</label>
-                <select 
+                <select
                   className="input"
                   value={input.category}
-                  onChange={(e) => setInput({...input, category: e.target.value})}
+                  onChange={(e) => setInput({ ...input, category: e.target.value })}
                 >
                   {filters.categories.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
@@ -416,10 +416,10 @@ function App() {
 
               <div className="input-group">
                 <label className="label">City Preference</label>
-                <select 
+                <select
                   className="input"
                   value={input.city_filter}
-                  onChange={(e) => setInput({...input, city_filter: e.target.value})}
+                  onChange={(e) => setInput({ ...input, city_filter: e.target.value })}
                 >
                   <option value="All Cities">All Cities</option>
                   {filters.cities.map(c => <option key={c} value={c}>{c}</option>)}
@@ -428,19 +428,19 @@ function App() {
 
               <div className="input-group">
                 <label className="label">Course Preference</label>
-                <select 
+                <select
                   className="input"
                   value={input.course_filter}
-                  onChange={(e) => setInput({...input, course_filter: e.target.value})}
+                  onChange={(e) => setInput({ ...input, course_filter: e.target.value })}
                 >
                   <option value="All Courses">All Courses</option>
                   {filters.courses.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
 
-              <button 
-                onClick={handlePredict} 
-                className="btn btn-primary" 
+              <button
+                onClick={handlePredict}
+                className="btn btn-primary"
                 style={{ width: '100%', marginTop: '1rem' }}
                 disabled={loading}
               >
@@ -460,8 +460,8 @@ function App() {
                 </p>
               </div>
             ) : (
-              <motion.div 
-                initial={{ opacity: 0 }} 
+              <motion.div
+                initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
               >
                 {/* Stats Grid */}
@@ -500,7 +500,7 @@ function App() {
                     <h3 style={{ fontSize: '1.1rem' }}>College Predictions</h3>
                     <div style={{ fontSize: '0.875rem', color: 'var(--text-muted)' }}>{results.summary}</div>
                   </div>
-                  
+
                   <div style={{ overflowX: 'auto' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                       <thead style={{ background: '#f8fafc' }}>
@@ -524,10 +524,10 @@ function App() {
                               <div style={{ fontSize: '0.75rem', color: 'var(--success)' }}>+{r.margin.toFixed(2)}% Margin</div>
                             </td>
                             <td style={{ padding: '1.25rem 2rem' }}>
-                              <span style={{ 
-                                padding: '0.25rem 0.75rem', 
-                                borderRadius: '99px', 
-                                fontSize: '0.75rem', 
+                              <span style={{
+                                padding: '0.25rem 0.75rem',
+                                borderRadius: '99px',
+                                fontSize: '0.75rem',
                                 fontWeight: '700',
                                 background: r.tier === 'safe' ? 'rgba(16, 185, 129, 0.1)' : r.tier === 'match' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(245, 158, 11, 0.1)',
                                 color: r.tier === 'safe' ? 'var(--success)' : r.tier === 'match' ? 'var(--secondary)' : 'var(--accent)',
