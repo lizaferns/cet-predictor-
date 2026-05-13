@@ -131,3 +131,103 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .app-container main > div {
+    grid-template-columns: 1fr !important;
+    gap: 1.5rem !important;
+  }
+
+  aside {
+    width: 100% !important;
+  }
+
+  aside div {
+    position: relative !important;
+    top: 0 !important;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 768px) {
+  header {
+    flex-direction: column !important;
+    gap: 1rem !important;
+    text-align: center !important;
+    padding: 1rem !important;
+  }
+
+  header div:last-child {
+    text-align: center !important;
+  }
+
+  .auth-card {
+    margin: 1rem !important;
+    padding: 1.5rem !important;
+    border-radius: 12px !important;
+  }
+
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  .landing-container h1 {
+    font-size: 2.5rem !important;
+  }
+
+  .landing-container main > div {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
+    text-align: center !important;
+  }
+
+  .landing-container main > div > div:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .landing-container main > div > div:nth-child(2) {
+    order: -1;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  table thead {
+    display: none !important;
+  }
+
+  table, tbody, tr, td {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  tr {
+    margin-bottom: 1rem !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius) !important;
+    padding: 1rem !important;
+  }
+
+  td {
+    padding: 0.5rem 0 !important;
+    border: none !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+
+  td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+}

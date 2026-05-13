@@ -16,12 +16,14 @@ import {
   Info
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
+import config from './config';
+import Landing from './pages/Landing';
 
 // API Configuration
-const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:8000') + '/api';
+const API_BASE = config.API_BASE;
 
 function App() {
+  const [showLanding, setShowLanding] = useState(true);
   const [user, setUser] = useState(null);
   const [authView, setAuthView] = useState('login'); // 'login', 'register', 'forgot'
   const [loading, setLoading] = useState(false);
@@ -193,6 +195,10 @@ function App() {
       setLoading(false);
     }
   };
+
+  if (showLanding) {
+    return <Landing onGetStarted={() => setShowLanding(false)} />;
+  }
 
   if (!user) {
     return (
@@ -465,7 +471,7 @@ function App() {
                 animate={{ opacity: 1 }}
               >
                 {/* Stats Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
+                <div className="stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem', marginBottom: '2rem' }}>
                   <div style={{ background: 'white', padding: '1.5rem', borderRadius: '16px', boxShadow: 'var(--shadow)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
                     <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '12px', color: 'var(--danger)' }}>
                       <TrendingUp size={24} />
@@ -514,16 +520,16 @@ function App() {
                       <tbody>
                         {results.results.map((r, idx) => (
                           <tr key={idx} style={{ borderBottom: '1px solid var(--border)' }}>
-                            <td style={{ padding: '1.25rem 2rem' }}>
+                            <td data-label="College & Course" style={{ padding: '1.25rem 2rem' }}>
                               <div style={{ fontWeight: '600', color: '#0f172a' }}>{r.college_name}</div>
                               <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>{r.course_name}</div>
                             </td>
-                            <td style={{ padding: '1.25rem 2rem', fontSize: '0.9rem' }}>{r.city_name}</td>
-                            <td style={{ padding: '1.25rem 2rem' }}>
+                            <td data-label="City" style={{ padding: '1.25rem 2rem', fontSize: '0.9rem' }}>{r.city_name}</td>
+                            <td data-label="Cutoff" style={{ padding: '1.25rem 2rem' }}>
                               <div style={{ fontWeight: '700' }}>{r.cutoff}%ile</div>
                               <div style={{ fontSize: '0.75rem', color: 'var(--success)' }}>+{r.margin.toFixed(2)}% Margin</div>
                             </td>
-                            <td style={{ padding: '1.25rem 2rem' }}>
+                            <td data-label="Status" style={{ padding: '1.25rem 2rem' }}>
                               <span style={{
                                 padding: '0.25rem 0.75rem',
                                 borderRadius: '99px',
