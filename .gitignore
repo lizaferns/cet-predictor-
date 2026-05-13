@@ -1,0 +1,9 @@
+node_modules
+.env
+dist
+.vscode
+.DS_Store
+*.pyc
+__pycache__
+frontend/node_modules
+react_app/node_modules
