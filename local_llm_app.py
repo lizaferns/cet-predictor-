@@ -35,7 +35,6 @@ app.add_middleware(
         "https://starlit-cactus-bdb990.netlify.app",
         "http://localhost:3000",
         "http://localhost:5173",
-        "*"
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -43,10 +42,10 @@ app.add_middleware(
 )
 
 # ── MySQL Connection ───────────────────────────────────────────────────────────
-MYSQL_HOST = os.getenv("MYSQLHOST", "localhost")
+MYSQL_HOST = os.getenv("MYSQLHOST", "mysql.railway.internal")
 MYSQL_PORT = int(os.getenv("MYSQLPORT", 3306))
 MYSQL_USER = os.getenv("MYSQLUSER", "root")
-MYSQL_PASSWORD = os.getenv("MYSQLPASSWORD", "WILL@_1981")
+MYSQL_PASSWORD = os.getenv("MYSQLPASSWORD", "VaLIaMpwaJescUNEcyBlCuInrFbovJPI")
 MYSQL_DATABASE = os.getenv("MYSQLDATABASE", "cet_predictor")
 
 print(f"[DB] Connecting to {MYSQL_HOST}:{MYSQL_PORT} as {MYSQL_USER}")
@@ -63,9 +62,6 @@ DB_CONFIG = {
 GMAIL = os.getenv("MAIL_EMAIL", "lizafernz27@gmail.com")
 GMAIL_APP_PASSWORD = os.getenv("MAIL_PASSWORD", "yrfxvjgclafpygke")
 
-# In-memory OTP storage is removed in favor of MySQL storage
-# otp_store = {}
-
 def get_db():
     return mysql.connector.connect(**DB_CONFIG)
 
@@ -75,7 +71,8 @@ def init_db():
         conn = mysql.connector.connect(
             host=DB_CONFIG["host"],
             user=DB_CONFIG["user"],
-            password=DB_CONFIG["password"]
+            password=DB_CONFIG["password"],
+            port=DB_CONFIG["port"]
         )
         cursor = conn.cursor()
         cursor.execute("CREATE DATABASE IF NOT EXISTS cet_predictor")
@@ -151,7 +148,6 @@ def register(req: RegisterRequest):
             return {"success": False, "message": "This email is already part of our community! Try logging in instead."}
 
         # Phone validation
-        import re
         if req.phone:
             if not re.match(r'^[6-9][0-9]{9}$', req.phone):
                 cursor.close()
@@ -184,8 +180,11 @@ def register(req: RegisterRequest):
         hashed = bcrypt.hashpw(req.password.encode('utf-8'), bcrypt.gensalt())
 
         # Save to database
-        cursor.execute("INSERT INTO users (username, name, email, phone, password) VALUES (%s, %s, %s, %s, %s)", (req.username, req.name, req.email, req.phone, hashed.decode('utf-8')))
-        
+        cursor.execute(
+            "INSERT INTO users (username, name, email, phone, password) VALUES (%s, %s, %s, %s, %s)",
+            (req.username, req.name, req.email, req.phone, hashed.decode('utf-8'))
+        )
+
         db.commit()
         cursor.close()
         db.close()
@@ -222,18 +221,11 @@ def login(req: LoginRequest):
                 "email": user[2],
                 "id": user[0]
             }
-            
         else:
             return {"success": False, "message": "Hmm, that password doesn't match. Give it another try?"}
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-
-
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
-
-
 
 
 # ── Constants for Filters ──────────────────────────────────────────────────
@@ -335,14 +327,13 @@ def load_data() -> list[dict]:
                                 pass
 
             if merged_cutoffs:
-                # Better city extraction from college name if city is missing
                 found_city = city
                 if not found_city or found_city == "Maharashtra":
                     for c in CITIES:
                         if c.lower() in college_name.lower():
                             found_city = c
                             break
-                
+
                 records.append({
                     "college_name": college_name,
                     "city_name":    found_city if found_city else "Maharashtra",
@@ -414,8 +405,6 @@ def build_summary(safe: list, match: list, stretch: list, percentile: float, cat
     )
 
 
-
-
 # ── Endpoints ──────────────────────────────────────────────────────────────────
 @app.get("/api/filters")
 def get_filters():
@@ -449,7 +438,6 @@ def predict(req: PredictRequest):
     city_q = req.city_filter.strip().lower()
     course_q = req.course_filter.strip().lower()
 
-    # Handle "All" options
     if "all" in city_q: city_q = ""
     if "all" in course_q: course_q = ""
 
@@ -458,33 +446,28 @@ def predict(req: PredictRequest):
     stretch_count = 0
 
     for rec in COLLEGES:
-        # Check both city_name and college_name for city filter
         if city_q:
             city_match = (city_q in rec["city_name"].lower()) or (city_q in rec["college_name"].lower())
             if not city_match:
                 continue
-                
+
         if course_q and course_q not in rec["course_name"].lower():
             continue
 
-        # Robust category matching
         cutoff = None
-        
-        # 1. Try exact match
+
         if cat_query in rec["cutoffs"]:
             cutoff = rec["cutoffs"][cat_query]
-        
-        # 2. Try matching any key that starts with the query (e.g. GOPEN matches GOPENH, GOPENS)
+
         if cutoff is None:
             for k, v in rec["cutoffs"].items():
                 if k.startswith(cat_query):
                     cutoff = v
                     break
-        
-        # 3. Handle common aliases (e.g. OPEN -> GOPEN)
+
         if cutoff is None:
             alias_map = {
-                "OPEN": "GOPEN", "OBC": "GOBC", "SC": "GSCS", "ST": "GSTS", 
+                "OPEN": "GOPEN", "OBC": "GOBC", "SC": "GSCS", "ST": "GSTS",
                 "VJ/DT": "GVJS", "NT1": "GNT1", "NT2": "GNT2", "NT3": "GNT3"
             }
             alias = alias_map.get(cat_query)
@@ -494,7 +477,6 @@ def predict(req: PredictRequest):
                         cutoff = v
                         break
 
-        # 4. Final fallback to any Open category if still nothing found (optional, but keeps results flowing)
         if cutoff is None:
             cutoff = rec["cutoffs"].get("GOPENS") or rec["cutoffs"].get("GOPENH") or rec["cutoffs"].get("GOPENO")
 
@@ -502,10 +484,7 @@ def predict(req: PredictRequest):
             continue
 
         margin = req.percentile - cutoff
-        if margin < -2: # Allow a small negative margin for "ambitious" picks if you want, but sticking to 0 for now
-            continue
         if margin < 0:
-            # We skip colleges where percentile is higher than user's
             continue
 
         tier = classify(margin)
@@ -541,16 +520,14 @@ def predict(req: PredictRequest):
     )
 
 # ── Serve Frontend ────────────────────────────────────────────────────────────
-BASE_DIR   = Path(__file__).parent
+BASE_DIR     = Path(__file__).parent
 FRONTEND_DIR = BASE_DIR / "frontend" / "dist"
 
-# If production build exists, serve it
 if FRONTEND_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(FRONTEND_DIR / "assets")), name="static")
 
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
-        # Serve index.html for any route that doesn't match an API
         file_path = FRONTEND_DIR / full_path
         if file_path.is_file():
             return FileResponse(str(file_path))
@@ -560,59 +537,58 @@ else:
     def root():
         return {"status": "ok", "message": "Backend is running. Build the frontend to see the UI."}
 
+
+# ── Password Reset Endpoints ──────────────────────────────────────────────────
 @app.post("/api/forgot-password")
 def forgot_password(data: dict):
     email = data.get("email")
     if not email:
         return {"success": False, "message": "Email is required!"}
-        
+
     try:
         db = get_db()
         cursor = db.cursor()
-        
-        # 1. Check if email exists
+
         cursor.execute("SELECT id FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
         if not user:
             cursor.close()
             db.close()
             return {"success": False, "message": "Email not found in our database!"}
-            
-        # 2. Generate 6-digit OTP
+
         otp = str(random.randint(100000, 999999))
         expiry = datetime.now() + timedelta(minutes=10)
-        
-        # 3. Save to MySQL (Delete old OTP if exists)
+
         cursor.execute("DELETE FROM otps WHERE email = %s", (email,))
         cursor.execute("INSERT INTO otps (email, otp, expires_at) VALUES (%s, %s, %s)", (email, otp, expiry))
         db.commit()
         cursor.close()
         db.close()
-        
-        # 4. Send via Gmail
+
         msg = MIMEText(f"Hello,\n\nYour OTP for CET Predictor password reset is: {otp}\n\nThis OTP is valid for 10 minutes.\n\nRegards,\nCET Predictor Team")
         msg["Subject"] = "CET Predictor - Password Reset OTP"
         msg["From"] = GMAIL
         msg["To"] = email
-        
+
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
             server.login(GMAIL, GMAIL_APP_PASSWORD)
             server.send_message(msg)
-            
+
         return {"success": True, "message": "OTP sent successfully to your email!"}
-        
+
     except Exception as e:
         print(f"SMTP/DB Error: {e}")
         return {"success": False, "message": f"Failed to send OTP. Error: {str(e)}"}
+
 
 @app.post("/api/verify-otp")
 def verify_otp(data: dict):
     email = data.get("email")
     otp = data.get("otp")
-    
+
     if not email or not otp:
         return {"success": False, "message": "Email and OTP are required!"}
-        
+
     try:
         db = get_db()
         cursor = db.cursor()
@@ -620,66 +596,65 @@ def verify_otp(data: dict):
         row = cursor.fetchone()
         cursor.close()
         db.close()
-        
+
         if not row:
             return {"success": False, "message": "No OTP sent for this email!"}
-            
+
         stored_otp, expires_at = row
-        
+
         if datetime.now() > expires_at:
             return {"success": False, "message": "OTP has expired!"}
-            
+
         if stored_otp != otp:
             return {"success": False, "message": "Invalid OTP!"}
-            
+
         return {"success": True, "message": "OTP verified successfully!"}
+
     except Exception as e:
         return {"success": False, "message": f"Database error: {str(e)}"}
+
 
 @app.post("/api/reset-password")
 def reset_password(data: dict):
     email = data.get("email")
     otp = data.get("otp")
     new_password = data.get("new_password")
-    
+
     if not email or not otp or not new_password:
         return {"success": False, "message": "All fields are required!"}
-        
+
     try:
         db = get_db()
         cursor = db.cursor()
 
-        # 1. Verify OTP again from DB
         cursor.execute("SELECT otp, expires_at FROM otps WHERE email = %s", (email,))
         row = cursor.fetchone()
-        
+
         if not row:
             cursor.close()
             db.close()
             return {"success": False, "message": "OTP verification failed (not found)!"}
-            
+
         stored_otp, expires_at = row
         if stored_otp != otp or datetime.now() > expires_at:
             cursor.close()
             db.close()
             return {"success": False, "message": "OTP verification failed or expired!"}
 
-        # 2. Hash new password
         hashed = bcrypt.hashpw(new_password.encode('utf-8'), bcrypt.gensalt())
-        
-        # 3. Update Password
+
         cursor.execute("UPDATE users SET password = %s WHERE email = %s", (hashed.decode('utf-8'), email))
-        
-        # 4. Cleanup OTP
         cursor.execute("DELETE FROM otps WHERE email = %s", (email,))
-        
+
         db.commit()
         cursor.close()
         db.close()
-        
+
         return {"success": True, "message": "Password updated successfully! You can now login."}
+
     except Exception as e:
         return {"success": False, "message": f"Database error: {str(e)}"}
+
 
 if __name__ == "__main__":
     import uvicorn

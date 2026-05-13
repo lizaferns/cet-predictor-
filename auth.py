@@ -9,9 +9,9 @@ CORS(app)
 
 # Database Configuration
 DB_CONFIG = {
-    "host": "localhost",
+    "host": "mysql.railway.internal",
     "user": "root",
-    "password": "WILL@_1981",
+    "password": "VaLIaMpwaJescUNEcyBlCuInrFbovJPI",
     "database": "cet_predictor",
     "port": 3306
 }
