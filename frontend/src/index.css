@@ -131,8 +131,136 @@ h1, h2, h3, h4, h5, h6 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+}
 
-/* Mobile Responsiveness */
+/* Landing Page Support Classes (Tailwind-like) */
+.landing-root {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
+}
+
+.grid { display: grid; }
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+@media (min-width: 1024px) { .lg\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 768px) { 
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .md\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .md\:col-span-8 { grid-column: span 8 / span 8; }
+  .md\:col-span-4 { grid-column: span 4 / span 4; }
+  .md\:grid-cols-12 { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+}
+
+.gap-6 { gap: 1.5rem; }
+.gap-8 { gap: 2rem; }
+.gap-12 { gap: 3rem; }
+.gap-16 { gap: 4rem; }
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+
+.relative { position: relative; }
+.absolute { position: absolute; }
+.inset-0 { inset: 0px; }
+
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+.font-black { font-weight: 900; }
+.font-bold { font-weight: 700; }
+.font-medium { font-weight: 500; }
+
+.text-6xl { font-size: 3.75rem; line-height: 1; }
+.text-8xl { font-size: 6rem; line-height: 1; }
+.text-5xl { font-size: 3rem; line-height: 1; }
+.text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+.text-2xl { font-size: 1.5rem; line-height: 2rem; }
+.text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+
+.text-blue-600 { color: #2563eb; }
+.text-blue-700 { color: #1d4ed8; }
+.text-slate-900 { color: #0f172a; }
+.text-white { color: #ffffff; }
+
+.bg-blue-600 { background-color: #2563eb; }
+.bg-blue-50 { background-color: #eff6ff; }
+.bg-slate-50 { background-color: #f8fafc; }
+.bg-blue-100 { background-color: #dbeafe; }
+.bg-white { background-color: #ffffff; }
+
+.rounded-full { border-radius: 9999px; }
+.rounded-2xl { border-radius: 1rem; }
+.rounded-3xl { border-radius: 1.5rem; }
+
+.shadow-2xl { box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); }
+.shadow-xl { box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
+
+.transition-all { transition-property: all; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+.duration-700 { transition-duration: 700ms; }
+
+.overflow-hidden { overflow: hidden; }
+.overflow-x-hidden { overflow-x: hidden; }
+
+/* Custom Landing Styles */
+.hero-title {
+  line-height: 0.9;
+}
+
+.hero-subtitle {
+  color: rgba(37, 99, 235, 0.8);
+}
+
+.hero-image-wrapper {
+  transform: rotate(3deg);
+}
+
+.hero-image-wrapper:hover {
+  transform: rotate(0deg);
+}
+
+.no-underline {
+  text-decoration: none;
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 3.5rem !important;
+  }
+  
+  .hero-grid {
+    text-align: center !important;
+  }
+  
+  .hero-grid > div:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .mobile-hide {
+    display: none !important;
+  }
+  
+  .mobile-center {
+    text-align: center !important;
+  }
+  
+  .bento-item-large, .bento-item-small {
+    padding: 2rem !important;
+    border-radius: 2rem !important;
+  }
+  
+  .hero-image-wrapper {
+    transform: rotate(0deg) !important;
+    border-width: 6px !important;
+  }
+}
+
+/* Restore Mobile Responsiveness for Main App */
 @media (max-width: 1024px) {
   .app-container main > div {
     grid-template-columns: 1fr !important;
@@ -173,26 +301,6 @@ h1, h2, h3, h4, h5, h6 {
 
   h1 {
     font-size: 1.5rem !important;
-  }
-
-  .landing-container h1 {
-    font-size: 2.5rem !important;
-  }
-
-  .landing-container main > div {
-    grid-template-columns: 1fr !important;
-    gap: 2rem !important;
-    text-align: center !important;
-  }
-
-  .landing-container main > div > div:first-child {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .landing-container main > div > div:nth-child(2) {
-    order: -1;
   }
 
   .stats-grid {
