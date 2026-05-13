@@ -264,7 +264,8 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 1024px) {
   .app-container main > div {
     grid-template-columns: 1fr !important;
-    gap: 1.5rem !important;
+    gap: 2rem !important;
+    padding: 1rem !important;
   }
 
   aside {
@@ -274,10 +275,12 @@ h1, h2, h3, h4, h5, h6 {
   aside div {
     position: relative !important;
     top: 0 !important;
+    padding: 1.5rem !important;
   }
 
   .stats-grid {
     grid-template-columns: 1fr !important;
+    gap: 1rem !important;
   }
 }
 
@@ -286,7 +289,7 @@ h1, h2, h3, h4, h5, h6 {
     flex-direction: column !important;
     gap: 1rem !important;
     text-align: center !important;
-    padding: 1rem !important;
+    padding: 1.5rem 1rem !important;
   }
 
   header div:last-child {
@@ -295,12 +298,14 @@ h1, h2, h3, h4, h5, h6 {
 
   .auth-card {
     margin: 1rem !important;
-    padding: 1.5rem !important;
-    border-radius: 12px !important;
+    padding: 2rem 1.5rem !important;
+    border-radius: 16px !important;
+    width: calc(100% - 2rem) !important;
   }
 
   h1 {
-    font-size: 1.5rem !important;
+    font-size: 1.75rem !important;
+    line-height: 1.2 !important;
   }
 
   .stats-grid {
@@ -317,25 +322,110 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   tr {
-    margin-bottom: 1rem !important;
+    margin-bottom: 1.5rem !important;
     border: 1px solid var(--border) !important;
     border-radius: var(--radius) !important;
-    padding: 1rem !important;
+    padding: 1.25rem !important;
+    background: white;
+    box-shadow: var(--shadow);
   }
 
   td {
-    padding: 0.5rem 0 !important;
-    border: none !important;
+    padding: 0.75rem 0 !important;
+    border-bottom: 1px solid #f1f5f9 !important;
     display: flex !important;
     justify-content: space-between !important;
-    align-items: center !important;
+    align-items: flex-start !important;
+    flex-direction: column !important;
+    gap: 0.25rem !important;
+  }
+
+  td:last-child {
+    border-bottom: none !important;
   }
 
   td::before {
     content: attr(data-label);
-    font-weight: 700;
-    font-size: 0.75rem;
-    color: var(--text-muted);
+    font-weight: 800;
+    font-size: 0.7rem;
+    color: var(--secondary);
     text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+}
+
+/* Enhanced Landing Page Mobile Fixes */
+@media (max-width: 768px) {
+  .landing-root .px-6 {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+
+  .hero-title {
+    font-size: 3rem !important;
+    margin-bottom: 1.5rem !important;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem !important;
+    margin-bottom: 2rem !important;
+  }
+
+  .get-started-btn {
+    width: 100% !important;
+    padding: 1.25rem !important;
+    font-size: 1.25rem !important;
+    border-radius: 1.5rem !important;
+  }
+
+  .hero-card {
+    position: relative !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    margin-top: -2rem !important;
+    transform: rotate(-2deg) !important;
+    width: 90% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  .section-title {
+    font-size: 2.25rem !important;
+  }
+
+  .college-grid {
+    gap: 2rem !important;
+  }
+
+  .college-card {
+    border-radius: 2rem !important;
+  }
+
+  .college-card .p-10 {
+    padding: 2rem !important;
+  }
+
+  .bento-grid {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .bento-item-large, .bento-item-small {
+    padding: 2.5rem 1.5rem !important;
+    border-radius: 2.5rem !important;
+  }
+
+  .bento-item-large h3, .bento-item-small h3 {
+    font-size: 2rem !important;
+  }
+
+  .landing-footer {
+    padding-top: 3rem !important;
+  }
+
+  .footer-links {
+    flex-direction: column !important;
+    gap: 2rem !important;
   }
 }
