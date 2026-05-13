@@ -19,8 +19,7 @@ const ProtectedRoute = ({ children }) => {
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-slate-950 text-slate-200">
-        <div className="grain"></div>
+      <div className="min-h-screen bg-slate-50 text-slate-900">
         <Navbar />
         <Routes>
           <Route path="/" element={<Landing />} />
