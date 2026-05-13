@@ -60,7 +60,24 @@ DB_CONFIG = {
 
 # GMAIL CONFIG (From .env)
 GMAIL = os.getenv("MAIL_EMAIL", "lizafernz27@gmail.com")
-GMAIL_APP_PASSWORD = os.getenv("MAIL_PASSWORD", "yrfxvjgclafpygke")
+# Strip spaces from app password just in case user copied them from Gmail UI
+GMAIL_APP_PASSWORD = os.getenv("MAIL_PASSWORD", "yrfxvjgclafpygke").replace(" ", "")
+
+def send_otp_email(email: str, otp: str, subject_prefix: str = "Password Reset"):
+    """Helper to send OTP email via Gmail SMTP"""
+    try:
+        msg = MIMEText(f"Hello,\n\nYour OTP for CET Predictor {subject_prefix} is: {otp}\n\nThis OTP is valid for 10 minutes.\n\nRegards,\nCET Predictor Team")
+        msg["Subject"] = f"CET Predictor - {subject_prefix} OTP"
+        msg["From"] = GMAIL
+        msg["To"] = email
+
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(GMAIL, GMAIL_APP_PASSWORD)
+            server.send_message(msg)
+        return True
+    except Exception as e:
+        print(f"[SMTP ERROR] {e}")
+        return False
 
 def get_db():
     return mysql.connector.connect(**DB_CONFIG)
@@ -113,6 +130,7 @@ class RegisterRequest(BaseModel):
     email: str
     phone: str = ""
     password: str
+    otp: str
 
 class LoginRequest(BaseModel):
     email: str
@@ -122,6 +140,41 @@ class ResetPasswordRequest(BaseModel):
     email: str
     phone: str
     new_password: str
+
+class SendOTPRequest(BaseModel):
+    email: str
+
+# ── Register OTP Endpoint ──────────────────────────────────────────────────────
+@app.post("/api/send-registration-otp")
+def send_registration_otp(req: SendOTPRequest):
+    try:
+        db = get_db()
+        cursor = db.cursor()
+
+        # Check if email already exists
+        cursor.execute("SELECT id FROM users WHERE email = %s", (req.email,))
+        if cursor.fetchone():
+            cursor.close()
+            db.close()
+            return {"success": False, "message": "This email is already part of our community! Try logging in instead."}
+
+        otp = str(random.randint(100000, 999999))
+        expiry = datetime.now() + timedelta(minutes=10)
+
+        cursor.execute("DELETE FROM otps WHERE email = %s", (req.email,))
+        cursor.execute("INSERT INTO otps (email, otp, expires_at) VALUES (%s, %s, %s)", (req.email, otp, expiry))
+        db.commit()
+        cursor.close()
+        db.close()
+
+        if send_otp_email(req.email, otp, "Registration"):
+            return {"success": True, "message": "Verification code sent! Check your inbox."}
+        else:
+            return {"success": False, "message": "We couldn't send the code. Please double-check your email or try again later."}
+
+    except Exception as e:
+        print(f"[ERROR] {e}")
+        return {"success": False, "message": "Something went wrong. Please try again."}
 
 # ── Register Endpoint ──────────────────────────────────────────────────────────
 @app.post("/api/register")
@@ -146,6 +199,25 @@ def register(req: RegisterRequest):
             cursor.close()
             db.close()
             return {"success": False, "message": "This email is already part of our community! Try logging in instead."}
+
+        # Verify OTP
+        cursor.execute("SELECT otp, expires_at FROM otps WHERE email = %s", (req.email,))
+        row = cursor.fetchone()
+        if not row:
+            cursor.close()
+            db.close()
+            return {"success": False, "message": "Please verify your email first by requesting an OTP."}
+
+        stored_otp, expires_at = row
+        if stored_otp != req.otp:
+            cursor.close()
+            db.close()
+            return {"success": False, "message": "The code you entered is incorrect. Please check your email again."}
+        
+        if datetime.now() > expires_at:
+            cursor.close()
+            db.close()
+            return {"success": False, "message": "This code has expired. Please request a new one."}
 
         # Phone validation
         if req.phone:
@@ -184,6 +256,9 @@ def register(req: RegisterRequest):
             "INSERT INTO users (username, name, email, phone, password) VALUES (%s, %s, %s, %s, %s)",
             (req.username, req.name, req.email, req.phone, hashed.decode('utf-8'))
         )
+        
+        # Delete OTP after successful registration
+        cursor.execute("DELETE FROM otps WHERE email = %s", (req.email,))
 
         db.commit()
         cursor.close()
@@ -565,20 +640,14 @@ def forgot_password(data: dict):
         cursor.close()
         db.close()
 
-        msg = MIMEText(f"Hello,\n\nYour OTP for CET Predictor password reset is: {otp}\n\nThis OTP is valid for 10 minutes.\n\nRegards,\nCET Predictor Team")
-        msg["Subject"] = "CET Predictor - Password Reset OTP"
-        msg["From"] = GMAIL
-        msg["To"] = email
-
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(GMAIL, GMAIL_APP_PASSWORD)
-            server.send_message(msg)
-
-        return {"success": True, "message": "OTP sent successfully to your email!"}
+        if send_otp_email(email, otp, "Password Reset"):
+            return {"success": True, "message": "OTP sent successfully to your email!"}
+        else:
+            return {"success": False, "message": "Failed to send OTP. Please check your email and try again."}
 
     except Exception as e:
         print(f"SMTP/DB Error: {e}")
-        return {"success": False, "message": f"Failed to send OTP. Error: {str(e)}"}
+        return {"success": False, "message": f"An error occurred. Please try again."}
 
 
 @app.post("/api/verify-otp")
