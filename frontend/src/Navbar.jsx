@@ -21,14 +21,13 @@ const Navbar = () => {
       <div className="flex items-center gap-6">
         {name ? (
           <>
-            <Link to="/predictor" className="text-slate-600 hover:text-blue-600 transition-colors font-medium">Predictor</Link>
-            <div className="flex items-center gap-2 text-slate-600 border-l border-slate-200 pl-6">
+            <div className="flex items-center gap-2 text-slate-700 border-l border-slate-200 pl-6">
               <User size={18} className="text-blue-600" />
               <span className="font-semibold">{name}</span>
             </div>
             <button 
               onClick={handleLogout}
-              className="flex items-center gap-2 text-slate-400 hover:text-red-500 transition-colors font-medium"
+              className="flex items-center gap-2 text-slate-700 hover:text-red-600 transition-colors font-bold px-4 py-2 rounded-xl bg-slate-50 hover:bg-red-50 border border-slate-100"
             >
               <LogOut size={18} />
               <span>Logout</span>
